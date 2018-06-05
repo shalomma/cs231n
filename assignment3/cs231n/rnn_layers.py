@@ -35,6 +35,7 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
     # and cache variables respectively.                                          #
     ##############################################################################
     next_h = np.tanh(np.dot(x, Wx) + np.dot(prev_h, Wh) + b)
+    cache = (x, prev_h, Wh, Wx, b, next_h)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -63,7 +64,16 @@ def rnn_step_backward(dnext_h, cache):
     # HINT: For the tanh function, you can compute the local derivative in terms #
     # of the output value from tanh.                                             #
     ##############################################################################
-    pass
+    x, prev_h, Wh, Wx, b, next_h = cache
+    
+    da = (1 - np.power(next_h,2)) # (N, H) derivative of the activation layer (a = tanh(z))
+    dz = np.multiply(dnext_h, da) # (N, H)
+    
+    db = np.sum(dz, axis=0)
+    dx = dz.dot(Wx.T)
+    dprev_h = dz.dot(Wh.T)
+    dWx = x.T.dot(dz)
+    dWh = prev_h.T.dot(dz)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
